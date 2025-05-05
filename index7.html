@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pré-Natal Odontológico - Livro Interativo</title>
+    <style>
+        :root {
+            --primary-color: #2c7873;
+            --secondary-color: #6fb98f;
+            --accent-color: #ff9a56;
+            --text-color: #333;
+            --light-bg: #f5f5f5;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-color);
+            padding: 20px;
+        }
+        
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            width: 100%;
+            max-width: 800px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 0;
+        }
+        
+        .book-container {
+            background-color: white;
+            width: 100%;
+            max-width: 800px;
+            min-height: 500px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 0 0 8px 8px;
+            position: relative;
+        }
+        
+        .page-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .page-text {
+            text-align: justify;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            font-size: 18px;
+        }
+        
+        .page-image {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 6px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin: 0 auto 1.5rem;
+            display: block;
+            object-fit: cover;
+        }
+        
+        .image-caption {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .highlight {
+            background-color: rgba(111, 185, 143, 0.2);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .important-note {
+            background-color: rgba(255, 154, 86, 0.1);
+            border-left: 4px solid var(--accent-color);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .note-title {
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .choices-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 2rem;
+        }
+        
+        .choice-button {
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .choice-button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+        
+        .nav-button {
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .nav-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.7;
+        }
+        
+        .page-indicator {
+            color: #666;
+            font-weight: 500;
+            background: rgba(255,255,255,0.8);
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .book-container {
+                padding: 1.5rem;
+            }
+            
+            .page-text {
+                font-size: 16px;
+            }
+            
+            .nav-button, .choice-button {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Pré-Natal Odontológico Interativo</h1>
+        <p>Jornada de Ana e Lucas - Faça escolhas que impactam a história</p>
+    </div>
+    
+    <div class="book-container" id="book-container">
+        <!-- Conteúdo será carregado dinamicamente pelo JavaScript -->
+    </div>
+
+    <!-- Sons -->
+    <audio id="pageSound" src="https://www.soundjay.com/buttons/sounds/button-29.mp3"></audio>
+    <audio id="choiceSound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
+
+    <script>
+        const bookData = [
+            {
+                title: "O Sonho de Ser Pais",
+                content: `
+                    <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Casal feliz" class="page-image">
+                    <p class="page-text">
+                        Ana e Lucas, recém casados, sempre sonharam em ter filhos. Para realizar esse sonho é necessário que a fecundação aconteça, ou seja, a união do gameta masculino (espermatozoide) com o gameta feminino (óvulo). Com essa união, o embrião é formado.
+                    </p>
+                    <div class="important-note">
+                        <h3 class="note-title">Informação Importante</h3>
+                        <p>De 5 a 12 dias após a fecundação, ocorre a nidação, processo no qual o embrião é implantado na parede do útero (endométrio).</p>
+                    </div>
+                `,
+                choices: ["Próxima página"]
+            },
+            {
+                title: "A Descoberta da Gravidez",
+                content: `
+                    <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Exame de gravidez" class="page-image">
+                    <p class="page-text">
+                        Ana notou a ausência de sua menstruação e fez um exame que confirmou a gravidez. O médico informou que ela já estava com 4 semanas e que todos os órgãos do bebê já estavam em formação, incluindo o início do desenvolvimento dentário.
+                    </p>
+                    <p class="page-text">
+                        O que Ana deve fazer agora para garantir sua saúde bucal durante a gravidez?
+                    </p>
+                `,
+                choices: ["Manter os mesmos hábitos de higiene", "Marcar uma consulta odontológica", "Pesquisar na internet"]
+            },
+            {
+                title: "Primeiro Trimestre",
+                content: `
+                    <img src="https://images.unsplash.com/photo-1517486808906-6ca8b3f8e1c1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Mulher grávida com enjoos" class="page-image">
+                    <p class="page-text">
+                        Ana está no primeiro trimestre e sente muitos enjoos. Ela tem dificuldade para escovar os dentes porque a pasta dental piora o enjoo. O que ela deve fazer?
+                    </p>
+                    <div class="important-note">
+                        <h3 class="note-title">Odontogênese</h3>
+                        <p>Entre a 6ª e 8ª semana de gestação começa a formação dos dentes decíduos (de leite).</p>
+                    </div>
+                `,
+                choices: ["Escovar sem pasta dental", "Usar enxaguante bucal no lugar", "Diminuir a frequência da escovação"]
+            },
+            {
+                title: "Segundo Trimestre",
+                content: `
+                    <img src="https://images.unsplash.com/photo-1530046339918-68a5c17d0e41?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Ultrassom grávida" class="page-image">
+                    <p class="page-text">
+                        No segundo trimestre, Ana percebeu sangramento na gengiva ao escovar os dentes. Ela está preocupada porque ouviu que problemas bucais podem afetar o bebê.
+                    </p>
+                    <p class="page-text">
+                        O que você acha que Ana deve fazer?
+                    </p>
+                `,
+                choices: ["Ignorar, pois é normal na gravidez", "Usar escova mais macia e fio dental", "Procurar imediatamente o dentista"]
+            },
+            {
+                title: "Terceiro Trimestre",
+                content: `
+                    <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Casal grávida feliz" class="page-image">
+                    <p class="page-text">
+                        Ana está no final da gravidez e percebeu que seus dentes parecem mais "moles". Ela está preocupada com a saúde bucal do bebê que está para nascer.
+                    </p>
+                    <div class="important-note">
+                        <h3 class="note-title">Cuidados com o Recém-Nascido</h3>
+                        <p>Mesmo antes dos dentes nascerem, a limpeza da gengiva do bebê é importante para prevenir problemas futuros.</p>
+                    </div>
+                `,
+                choices: ["Esperar o nascimento para se preocupar", "Procurar orientação odontológica", "Começar a pesquisar sobre cuidados com o bebê"]
+            },
+            {
+                title: "O Nascimento de Thiago",
+                content: `
+                    <img src="https://images.unsplash.com/photo-1544830798-9bf6a6ef8a1b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Mãe com bebê recém-nascido" class="page-image">
+                    <p class="page-text">
+                        Thiago nasceu saudável! Ana agora precisa decidir como cuidará da saúde bucal dele. Ela sabe que o leite materno é importante, mas está com dificuldades para amamentar.
+                    </p>
+                    <p class="page-text">
+                        Qual a melhor atitude?
+                    </p>
+                `,
+                choices: ["Usar mamadeira sem preocupações", "Procurar um banco de leite humano", "Consultar pediatra e dentista para orientações"]
+            }
+        ];
+
+        // Resultados baseados nas escolhas
+        const outcomes = {
+            // Página 1 (Descoberta da Gravidez)
+            "Manter os mesmos hábitos de higiene": {
+                text: "Ana continuou com sua rotina normal, mas sem orientação profissional específica para gestantes.",
+                nextPage: 2
+            },
+            "Marcar uma consulta odontológica": {
+                text: "Ana foi ao dentista e recebeu orientações específicas para gestantes, incluindo cuidados com enjoos matinais.",
+                nextPage: 2
+            },
+            "Pesquisar na internet": {
+                text: "Ana encontrou informações conflitantes na internet e ficou confusa sobre os cuidados necessários.",
+                nextPage: 2
+            },
+            
+            // Página 2 (Primeiro Trimestre)
+            "Escovar sem pasta dental": {
+                text: "Escovar sem pasta ajudou com os enjoos, mas Ana percebeu que precisava de outra solução para a limpeza eficaz.",
+                nextPage: 3
+            },
+            "Usar enxaguante bucal no lugar": {
+                text: "O enxaguante ajudou temporariamente, mas não substitui a escovação adequada.",
+                nextPage: 3
+            },
+            "Diminuir a frequência da escovação": {
+                text: "Reduzir a escovação piorou a saúde bucal de Ana, causando mais sensibilidade.",
+                nextPage: 3
+            },
+            
+            // Página 3 (Segundo Trimestre)
+            "Ignorar, pois é normal na gravidez": {
+                text: "O sangramento piorou e Ana desenvolveu uma gengivite mais grave.",
+                nextPage: 4
+            },
+            "Usar escova mais macia e fio dental": {
+                text: "Com escova macia e fio dental, a saúde bucal de Ana melhorou significativamente.",
+                nextPage: 4
+            },
+            "Procurar imediatamente o dentista": {
+                text: "O dentista identificou um início de periodontite e tratou a tempo, evitando complicações.",
+                nextPage: 4
+            },
+            
+            // Página 4 (Terceiro Trimestre)
+            "Esperar o nascimento para se preocupar": {
+                text: "Ana perdeu a oportunidade de preparar os cuidados bucais do bebê com antecedência.",
+                nextPage: 5
+            },
+            "Procurar orientação odontológica": {
+                text: "O dentista orientou Ana sobre os cuidados desde o nascimento e a importância da amamentação.",
+                nextPage: 5
+            },
+            "Começar a pesquisar sobre cuidados com o bebê": {
+                text: "Ana se informou, mas ainda tinha dúvidas que só um profissional poderia esclarecer.",
+                nextPage: 5
+            },
+            
+            // Página 5 (Nascimento)
+            "Usar mamadeira sem preocupações": {
+                text: "Ana não sabia que a forma como o bebê usa a mamadeira pode afetar o desenvolvimento bucal.",
+                nextPage: 0 // Reinicia
+            },
+            "Procurar um banco de leite humano": {
+                text: "Ana garantiu nutrição adequada para Thiago enquanto resolvia suas dificuldades com amamentação.",
+                nextPage: 0 // Reinicia
+            },
+            "Consultar pediatra e dentista para orientações": {
+                text: "Ana recebeu todas as orientações necessárias para cuidar da saúde bucal de Thiago desde o início!",
+                nextPage: 0 // Reinicia
+            },
+            
+            // Navegação simples
+            "Próxima página": {
+                nextPage: 1
+            }
+        };
+
+        let currentPageIndex = 0;
+        const bookContainer = document.getElementById('book-container');
+        const prevBtn = document.createElement('button');
+        const nextBtn = document.createElement('button');
+        const pageIndicator = document.createElement('div');
+        const navigation = document.createElement('div');
+        
+        // Configura a navegação
+        navigation.className = 'navigation';
+        prevBtn.className = 'nav-button';
+        prevBtn.innerHTML = 'Anterior';
+        prevBtn.onclick = prevPage;
+        
+        nextBtn.className = 'nav-button';
+        nextBtn.innerHTML = 'Próximo';
+        nextBtn.onclick = nextPage;
+        
+        pageIndicator.className = 'page-indicator';
+        
+        navigation.appendChild(prevBtn);
+        navigation.appendChild(pageIndicator);
+        navigation.appendChild(nextBtn);
+        
+        // Carrega a página inicial
+        renderPage(currentPageIndex);
+
+        function renderPage(index) {
+            const pageData = bookData[index];
+            
+            bookContainer.innerHTML = `
+                <h2 class="page-title">${pageData.title}</h2>
+                ${pageData.content}
+                <div class="choices-container" id="choices-container"></div>
+            `;
+            
+            const choicesContainer = document.getElementById('choices-container');
+            choicesContainer.innerHTML = '';
+            
+            // Adiciona as escolhas
+            pageData.choices.forEach(choice => {
+                const button = document.createElement('button');
+                button.className = 'choice-button';
+                button.textContent = choice;
+                button.onclick = () => makeChoice(choice);
+                choicesContainer.appendChild(button);
+            });
+            
+            // Atualiza navegação
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === bookData.length - 1;
+            pageIndicator.textContent = `Página ${index + 1} de ${bookData.length}`;
+            
+            // Adiciona a navegação no final
+            bookContainer.appendChild(navigation);
+        }
+
+        function makeChoice(choice) {
+            document.getElementById('choiceSound').play();
+            
+            if (outcomes[choice]) {
+                const outcome = outcomes[choice];
+                
+                // Se houver texto de resultado, mostra antes de avançar
+                if (outcome.text) {
+                    bookData[outcome.nextPage].content = `
+                        <img src="${bookData[outcome.nextPage].image || 'https://images.unsplash.com/photo-1588773846150-8a6dd941cbc9'}" alt="Resultado" class="page-image">
+                        <p class="page-text">${outcome.text}</p>
+                        <p class="page-text">${bookData[outcome.nextPage].content.split('<p class="page-text">')[1] || ''}</p>
+                    `;
+                }
+                
+                currentPageIndex = outcome.nextPage;
+                renderPage(currentPageIndex);
+            }
+        }
+
+        function nextPage() {
+            document.getElementById('pageSound').play();
+            if (currentPageIndex < bookData.length - 1) {
+                currentPageIndex++;
+                renderPage(currentPageIndex);
+            }
+        }
+
+        function prevPage() {
+            document.getElementById('pageSound').play();
+            if (currentPageIndex > 0) {
+                currentPageIndex--;
+                renderPage(currentPageIndex);
+            }
+        }
+
+        // Navegação por teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextPage();
+            } else if (e.key === 'ArrowLeft') {
+                prevPage();
+            }
+        });
+    </script>
+</body>
+</html>
